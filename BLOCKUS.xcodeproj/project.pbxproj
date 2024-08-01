@@ -8,6 +8,9 @@
 
 /* Begin PBXBuildFile section */
 		A259EDF02C5A6695005405FA /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = A259EDEF2C5A6695005405FA /* main.c */; };
+		A259EDF82C5A6795005405FA /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A259EDF72C5A6795005405FA /* OpenGL.framework */; };
+		A259EDFA2C5A679A005405FA /* GLUT.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A259EDF92C5A679A005405FA /* GLUT.framework */; };
+		A259EDFC2C5A8493005405FA /* print_empty_cube.py in Sources */ = {isa = PBXBuildFile; fileRef = A259EDFB2C5A8493005405FA /* print_empty_cube.py */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -25,6 +28,9 @@
 /* Begin PBXFileReference section */
 		A259EDEC2C5A6695005405FA /* BLOCKUS */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = BLOCKUS; sourceTree = BUILT_PRODUCTS_DIR; };
 		A259EDEF2C5A6695005405FA /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
+		A259EDF72C5A6795005405FA /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
+		A259EDF92C5A679A005405FA /* GLUT.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLUT.framework; path = System/Library/Frameworks/GLUT.framework; sourceTree = SDKROOT; };
+		A259EDFB2C5A8493005405FA /* print_empty_cube.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; path = print_empty_cube.py; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -32,6 +38,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A259EDFA2C5A679A005405FA /* GLUT.framework in Frameworks */,
+				A259EDF82C5A6795005405FA /* OpenGL.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -43,6 +51,7 @@
 			children = (
 				A259EDEE2C5A6695005405FA /* BLOCKUS */,
 				A259EDED2C5A6695005405FA /* Products */,
+				A259EDF62C5A6795005405FA /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -58,8 +67,18 @@
 			isa = PBXGroup;
 			children = (
 				A259EDEF2C5A6695005405FA /* main.c */,
+				A259EDFB2C5A8493005405FA /* print_empty_cube.py */,
 			);
 			path = BLOCKUS;
+			sourceTree = "<group>";
+		};
+		A259EDF62C5A6795005405FA /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				A259EDF92C5A679A005405FA /* GLUT.framework */,
+				A259EDF72C5A6795005405FA /* OpenGL.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -120,6 +139,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A259EDF02C5A6695005405FA /* main.c in Sources */,
+				A259EDFC2C5A8493005405FA /* print_empty_cube.py in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -245,6 +265,11 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+					GL_SILENCE_DEPRECATION,
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
