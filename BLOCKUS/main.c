@@ -8,6 +8,7 @@
 #include <OpenGL/OpenGL.h>
 #include <GLUT/glut.h>
 
+#include <stdbool.h>
 #include <stdio.h>
 
 // 화면 설정
@@ -41,58 +42,286 @@ double camera_x = 0.0;
 double camera_y = 0.0;
 double camera_z = 5.0;
 
-// 큐브 정의
-// cube__[큐브의 회전 번호][z좌표][y좌표][x좌표]로 접근
-// 아래쪽 단면(cube__[_][z + 1])이 위쪽 단면(cube__[_][z]) 위로 곂쳐지는 형태
-// ex) 아래와 같이 정의된 형태를 앞에서 보면
-//     7 8
-//     3 4로 보임
-//     {
-//         { 1, 2 },
-//         { 3, 4 }
-//     }, {
-//         { 5, 6 },
-//         { 7, 8 }
-//     }
-//const block_type cube20[3][2][2][2] = {
-//    {
-//        {
-//            { 1, 2 },
-//            { 0, 0 }
-//        }, {
-//            { 0, 0 },
-//            { 0, 0 }
-//        }
-//    }, {
-//        {
-//            { 1, 0 },
-//            { 2, 0 }
-//        }, {
-//            { 0, 0 },
-//            { 0, 0 }
-//        }
-//    }, {
-//        {
-//            { 1, 0 },
-//            { 0, 0 }
-//        }, {
-//            { 2, 0 },
-//            { 0, 0 }
-//        }
-//    }
-//};
+// 큐브 모양 정의
+// cube[_][z좌표][y좌표][x좌표]로 접근
+#define cube_size 4
+const block_type cube_data[11][cube_size][cube_size][cube_size] = {
+    { // cube2-0
+        {
+            { 1, 2, 0, 0 },
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 }
+        }, {
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 }
+        }, {
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 }
+        }, {
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 }
+        }
+    }, { // cube3-0
+        {
+            { 1, 2, 1, 0 },
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 }
+        }, {
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 }
+        }, {
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 }
+        }, {
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 }
+        }
+    }, { // cube 3-1
+        {
+            { 1, 2, 0, 0 },
+            { 2, 0, 0, 0 },
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 }
+        }, {
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 }
+        }, {
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 }
+        }, {
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 }
+        }
+    }, { // cube 4-0
+        {
+            { 1, 2, 1, 2 },
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 }
+        }, {
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 }
+        }, {
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 }
+        }, {
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 }
+        }
+    }, { // cube 4-1
+        {
+            { 2, 1, 0, 0 },
+            { 1, 2, 0, 0 },
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 }
+        }, {
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 }
+        }, {
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 }
+        }, {
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 }
+        }
+    }, { // cube 4-2
+        {
+            { 2, 0, 0, 0 },
+            { 1, 2, 1, 0 },
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 }
+        }, {
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 }
+        }, {
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 }
+        }, {
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 }
+        }
+    }, { // cube 4-3
+        {
+            { 2, 0, 0, 0 },
+            { 1, 2, 0, 0 },
+            { 0, 1, 0, 0 },
+            { 0, 0, 0, 0 }
+        }, {
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 }
+        }, {
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 }
+        }, {
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 }
+        }
+    }, { // cube 4-4
+        {
+            { 2, 0, 0, 0 },
+            { 1, 2, 0, 0 },
+            { 2, 0, 0, 0 },
+            { 0, 0, 0, 0 }
+        }, {
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 }
+        }, {
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 }
+        }, {
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 }
+        }
+    }, { // cube 4-5
+        {
+            { 1, 0, 0, 0 },
+            { 2, 1, 0, 0 },
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 }
+        }, {
+            { 2, 0, 0, 0 },
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 }
+        }, {
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 }
+        }, {
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 }
+        }
+    }, { // cube 4-6
+        {
+            { 1, 0, 0, 0 },
+            { 2, 1, 0, 0 },
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 }
+        }, {
+            { 0, 0, 0, 0 },
+            { 1, 0, 0, 0 },
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 }
+        }, {
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 }
+        }, {
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 }
+        }
+    }, { // cube 4-7
+        {
+            { 1, 0, 0, 0 },
+            { 2, 1, 0, 0 },
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 }
+        }, {
+            { 0, 0, 0, 0 },
+            { 0, 2, 0, 0 },
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 }
+        }, {
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 }
+        }, {
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 },
+            { 0, 0, 0, 0 }
+        }
+    }
+};
 
-void myReshape(int width, int height) {
-    // 투영 행렬 설정
-    glViewport(0, 0, width, height);
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    gluPerspective(40.0, (double)width / (double)height, 0.1, 100.0);
+// 큐브 정의
+typedef struct _cube {
+    int cube_type;        // cube_data의 인덱스를 가리킴
+    int x_rotation;       // x축을 기준으로 회전한 횟수
+    int y_rotation;       // y축을 기준으로 회전한 횟수
+    int z_rotation;       // z축을 기준으로 회전한 횟수
+    bool color_inversion; // 색 반전 여부
+} cube;
+
+void* cube_getArray(cube a) {
+    static block_type array[cube_size][cube_size][cube_size];
+    for (int z = 0; z < cube_size; z++) {
+        for (int y = 0; y < cube_size; y++) {
+            for (int x = 0; x < cube_size; x++) {
+                if (a.color_inversion == false) {
+                    array[z][y][x] = cube_data[a.cube_type][z][y][x];
+                } else {
+                    if (cube_data[a.cube_type][z][y][x] == WHITE) {
+                        array[z][y][x] = BLACK;
+                    } else if (cube_data[a.cube_type][z][y][x] == BLACK) {
+                        array[z][y][x] = WHITE;
+                    } else {
+                        array[z][y][x] = EMPTY;
+                    }
+                }
+            }
+        }
+    }
+    // TODO: 회전 변환 코드 추가
     
-    screen_width = width;
-    screen_height = height;
-    
-    glutPostRedisplay();
+    return (void*)array;
 }
 
 void drawCube(double z, double y, double x, block_type type) {
@@ -111,6 +340,33 @@ void drawCube(double z, double y, double x, block_type type) {
     glutSolidCube(1.0);
     glPopMatrix();
 }
+
+void cube_draw(cube a, double z0, double y0, double x0) {
+    block_type (*array)[cube_size][cube_size] = cube_getArray(a);
+    
+    for (int z = 0; z < cube_size; z++) {
+        for (int y = 0; y < cube_size; y++) {
+            for (int x = 0; x < cube_size; x++) {
+                drawCube(z0 + z, y0 + y, x0 + x, array[z][y][x]);
+            }
+        }
+    }
+}
+
+void myReshape(int width, int height) {
+    // 투영 행렬 설정
+    glViewport(0, 0, width, height);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    gluPerspective(40.0, (double)width / (double)height, 0.1, 100.0);
+    
+    screen_width = width;
+    screen_height = height;
+    
+    glutPostRedisplay();
+}
+
+int test_variable = 0; // test code
 
 void myDisplay(void) {
     glClearColor(0.5, 0.5, 0.5, 1.0); // 배경색 지정
@@ -132,6 +388,11 @@ void myDisplay(void) {
         }
     }
     
+    // test code
+    cube t = { 8, 0, 0, 0, false };
+    cube_draw(t, 3, 3, 3);
+    // test code
+    
     glutSwapBuffers();
 }
 
@@ -149,6 +410,11 @@ void myKeyboard(unsigned char key, int x, int y) {
     } else if (key == 'd' || key == 'D') {
         camera_x += 1.0;
     }
+    // test code
+    else if (key == 'q' || key == 'Q') {
+        test_variable++;
+    }
+    
     glutPostRedisplay();
 }
 
