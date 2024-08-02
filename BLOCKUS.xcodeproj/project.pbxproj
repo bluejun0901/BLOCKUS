@@ -11,6 +11,10 @@
 		A259EDF82C5A6795005405FA /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A259EDF72C5A6795005405FA /* OpenGL.framework */; };
 		A259EDFA2C5A679A005405FA /* GLUT.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A259EDF92C5A679A005405FA /* GLUT.framework */; };
 		A259EDFC2C5A8493005405FA /* print_empty_cube.py in Sources */ = {isa = PBXBuildFile; fileRef = A259EDFB2C5A8493005405FA /* print_empty_cube.py */; };
+		A259EDFF2C5D08A5005405FA /* cube.c in Sources */ = {isa = PBXBuildFile; fileRef = A259EDFE2C5D08A5005405FA /* cube.c */; };
+		A259EE082C5D0D00005405FA /* graphics.c in Sources */ = {isa = PBXBuildFile; fileRef = A259EE072C5D0D00005405FA /* graphics.c */; };
+		A259EE0A2C5D0D18005405FA /* board.c in Sources */ = {isa = PBXBuildFile; fileRef = A259EE092C5D0D18005405FA /* board.c */; };
+		A259EE0C2C5D1155005405FA /* common.c in Sources */ = {isa = PBXBuildFile; fileRef = A259EE0B2C5D1155005405FA /* common.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -31,6 +35,14 @@
 		A259EDF72C5A6795005405FA /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
 		A259EDF92C5A679A005405FA /* GLUT.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLUT.framework; path = System/Library/Frameworks/GLUT.framework; sourceTree = SDKROOT; };
 		A259EDFB2C5A8493005405FA /* print_empty_cube.py */ = {isa = PBXFileReference; lastKnownFileType = text.script.python; path = print_empty_cube.py; sourceTree = "<group>"; };
+		A259EDFD2C5D08A5005405FA /* cube.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = cube.h; sourceTree = "<group>"; };
+		A259EDFE2C5D08A5005405FA /* cube.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = cube.c; sourceTree = "<group>"; };
+		A259EE002C5D0A6E005405FA /* common.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = common.h; sourceTree = "<group>"; };
+		A259EE032C5D0B96005405FA /* board.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = board.h; sourceTree = "<group>"; };
+		A259EE062C5D0D00005405FA /* graphics.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = graphics.h; sourceTree = "<group>"; };
+		A259EE072C5D0D00005405FA /* graphics.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = graphics.c; sourceTree = "<group>"; };
+		A259EE092C5D0D18005405FA /* board.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = board.c; sourceTree = "<group>"; };
+		A259EE0B2C5D1155005405FA /* common.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = common.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -68,6 +80,14 @@
 			children = (
 				A259EDEF2C5A6695005405FA /* main.c */,
 				A259EDFB2C5A8493005405FA /* print_empty_cube.py */,
+				A259EDFD2C5D08A5005405FA /* cube.h */,
+				A259EDFE2C5D08A5005405FA /* cube.c */,
+				A259EE002C5D0A6E005405FA /* common.h */,
+				A259EE0B2C5D1155005405FA /* common.c */,
+				A259EE032C5D0B96005405FA /* board.h */,
+				A259EE092C5D0D18005405FA /* board.c */,
+				A259EE062C5D0D00005405FA /* graphics.h */,
+				A259EE072C5D0D00005405FA /* graphics.c */,
 			);
 			path = BLOCKUS;
 			sourceTree = "<group>";
@@ -138,7 +158,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A259EE0C2C5D1155005405FA /* common.c in Sources */,
+				A259EE082C5D0D00005405FA /* graphics.c in Sources */,
+				A259EE0A2C5D0D18005405FA /* board.c in Sources */,
 				A259EDF02C5A6695005405FA /* main.c in Sources */,
+				A259EDFF2C5D08A5005405FA /* cube.c in Sources */,
 				A259EDFC2C5A8493005405FA /* print_empty_cube.py in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

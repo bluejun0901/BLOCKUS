@@ -13,10 +13,10 @@
 #include <string.h>
 #include <math.h>
 
-// 주변 탐색을 위한 배열
-const int delta_x[] = { 1, -1, 0, 0, 0, 0 };
-const int delta_y[] = { 0, 0, 1, -1, 0, 0 };
-const int delta_z[] = { 0, 0, 0, 0, 1, -1 };
+#include "common.h"
+#include "board.h"
+#include "cube.h"
+#include "graphics.h"
 
 // 화면 설정
 // x축: 왼쪽 방향
@@ -32,308 +32,10 @@ double camera_x = 0.0;
 double camera_y = 0.0;
 double camera_z = 5.0;
 
-// 블록 종류 정의
-typedef enum _block_type {
-    EMPTY = 0,
-    WHITE = 1,
-    BLACK = 2
-} block_type;
-
-// 게임판 설정
-// x축: 오른쪽 방향
-// y축: 화면으로 들어가는 방향
-// z축: 위쪽 방향
-// 게임판 좌표로 (x, y, z) = 화면 좌표로 (-x, z, y)
-#define board_width 5  // 게임판 가로 크기
-#define board_height 8 // 게임판 세로 크기
-#define max_height 100 // 게임판에 놓을 수 있는 블록의 최대 높이
-block_type board[max_height][board_height][board_width]; // board[z좌표][y좌표][x좌표]로 접근: 디버깅에 편리함
-
-// 큐브 모양 정의
-// cube_data[_][z좌표][y좌표][x좌표]로 접근
-// rotated_cube_data[_][z축 회전 * 16 + y축 회전 * 4 + x축 회전][z좌표][y좌표][x좌표]로 접근
-#define cube_size 4 // 하나의 큐브를 저장하는 데 사용되는 공간의 크기 = 가장 큰 큐브의 크기
-#define cube_num 11 // 큐브 종류의 수
-const int fit_cube_size[cube_num] = { 2, 3, 2, 4, 2, 3, 3, 3, 2, 2, 2 }; // 큐브가 차지하는 실제 공간의 크기
-const block_type cube_data[cube_num][cube_size][cube_size][cube_size] = {
-    { // cube2-0
-        {
-            { 1, 2, 0, 0 },
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 }
-        }, {
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 }
-        }, {
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 }
-        }, {
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 }
-        }
-    }, { // cube3-0
-        {
-            { 1, 2, 1, 0 },
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 }
-        }, {
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 }
-        }, {
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 }
-        }, {
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 }
-        }
-    }, { // cube 3-1
-        {
-            { 1, 2, 0, 0 },
-            { 2, 0, 0, 0 },
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 }
-        }, {
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 }
-        }, {
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 }
-        }, {
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 }
-        }
-    }, { // cube 4-0
-        {
-            { 1, 2, 1, 2 },
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 }
-        }, {
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 }
-        }, {
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 }
-        }, {
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 }
-        }
-    }, { // cube 4-1
-        {
-            { 2, 1, 0, 0 },
-            { 1, 2, 0, 0 },
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 }
-        }, {
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 }
-        }, {
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 }
-        }, {
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 }
-        }
-    }, { // cube 4-2
-        {
-            { 2, 0, 0, 0 },
-            { 1, 2, 1, 0 },
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 }
-        }, {
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 }
-        }, {
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 }
-        }, {
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 }
-        }
-    }, { // cube 4-3
-        {
-            { 2, 0, 0, 0 },
-            { 1, 2, 0, 0 },
-            { 0, 1, 0, 0 },
-            { 0, 0, 0, 0 }
-        }, {
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 }
-        }, {
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 }
-        }, {
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 }
-        }
-    }, { // cube 4-4
-        {
-            { 2, 0, 0, 0 },
-            { 1, 2, 0, 0 },
-            { 2, 0, 0, 0 },
-            { 0, 0, 0, 0 }
-        }, {
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 }
-        }, {
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 }
-        }, {
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 }
-        }
-    }, { // cube 4-5
-        {
-            { 1, 0, 0, 0 },
-            { 2, 1, 0, 0 },
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 }
-        }, {
-            { 2, 0, 0, 0 },
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 }
-        }, {
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 }
-        }, {
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 }
-        }
-    }, { // cube 4-6
-        {
-            { 1, 0, 0, 0 },
-            { 2, 1, 0, 0 },
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 }
-        }, {
-            { 0, 0, 0, 0 },
-            { 1, 0, 0, 0 },
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 }
-        }, {
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 }
-        }, {
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 }
-        }
-    }, { // cube 4-7
-        {
-            { 1, 0, 0, 0 },
-            { 2, 1, 0, 0 },
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 }
-        }, {
-            { 0, 0, 0, 0 },
-            { 0, 2, 0, 0 },
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 }
-        }, {
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 }
-        }, {
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 },
-            { 0, 0, 0, 0 }
-        }
-    }
-};
-block_type rotated_cube_data[cube_num][4 * 4 * 4][cube_size][cube_size][cube_size]; // main함수에서 전처리
-
-// 큐브, 큐브 관련 함수 정의
-typedef struct _cube {
-    int cube_type;        // 0 ~ cube_num - 1의 정수 값을 가지며 큐브의 모양을 가리킴
-    int x_rotation;       // x축을 기준으로 회전한 횟수
-    int y_rotation;       // y축을 기준으로 회전한 횟수
-    int z_rotation;       // z축을 기준으로 회전한 횟수
-    bool color_inversion; // 색 반전 여부
-} cube;
-/* 큐브를 받아 큐브의 최종 형태를 반환하는 함수 */
-/* a: 큐브 구조체 */
-/* return: 큐브의 형태를 나타내는 cube_size * cube_size * cube_size크기의 3차원 배열을 가리키는 포인터 */
-void* cube_getArray(cube a);
-/* 큐브를 특정 위치에 놓을 수 있는지 여뷰를 반환하는 함수 */
-/* a: 큐브 구조체 */
-/* z0, y0, x0: 보드 좌표계에서 큐브의 왼쪽 아래 앞 꼭짓점의 위치 */
-/* return: 큐브를 특정 위치에 놓을 수 있는지 여부 */
-bool cube_canPut(cube a, int z0, int y0, int x0);
-/* 큐브를 특정 위치에 그리는 함수 */
-/* a: 큐브 구조체 */
-/* z0, y0, x0: 보드 좌표계에서 큐브의 왼쪽 아래 앞 꼭짓점의 위치 */
-void cube_draw(cube a, double z0, double y0, double x0);
-
 int test_variable = 0; // test code
 int tv2 = 0; // test code
 int tv3 = 0; // test code
-
-// 그리기 함수
-/* 단위 정육면체를 그리는 함수 */
-/* z, y, x: 보드 좌표계에서 정육면체의 왼쪽 아래 앞 꼭짓점의 위치 */
-/* type: 정육면체의 종류 */
-/* delta: 0.0 ~ 0.5의 실수값을 가지며, 블록의 색이 회색에 가까울 정도를 나타냄 */
-void drawBlock(double z, double y, double x, block_type type, double delta);
+cube t = { 8, 0, 0, 0, false }; // test code
 
 /* 윈도우 크기가 변했을 때 실행될 함수 */
 void myReshape(int width, int height) {
@@ -362,16 +64,9 @@ void myDisplay(void) {
               0.0, 1.0, 0.0);                              // 위쪽을 가리키는 벡터
     
     // 게임판 그리기
-    for (int z = 0; z < max_height; z++) {
-        for (int y = 0; y < board_height; y++) {
-            for (int x = 0; x < board_width; x++) {
-                drawBlock(z, y, x, board[z][y][x], 0.0);
-            }
-        }
-    }
+    drawBoard();
     
     // test code
-    cube t = { 8, 0, 0, 0, false };
     cube_draw(t, test_variable, tv2, tv3);
     // test code
     
@@ -400,6 +95,8 @@ void myKeyboard(unsigned char key, int x, int y) {
         tv2++;
     } else if (key == 'y' || key == 'Y') {
         tv3++;
+    } else if (key == ' ') {
+        cube_put(t, test_variable, tv2, tv3);
     }
     
     glutPostRedisplay();
@@ -423,58 +120,10 @@ void mySpecialKey(int key, int x, int y) {
 
 int main(int argc, char * argv[]) {
     // 보드 초기화
-    for (int z = 0; z < max_height; z++) {
-        for (int y = 0; y < board_height; y++) {
-            for (int x = 0; x < board_width; x++) {
-                if (z == 0) {
-                    board[z][y][x] = ((x + y) % 2 == 0 ? WHITE : BLACK);
-                } else {
-                    board[z][y][x] = EMPTY;
-                }
-            }
-        }
-    }
+    initBoard();
     
-    // 회전된 큐브 데이터 초기화
-    for (int cube_type = 0; cube_type < cube_num; cube_type++) {
-        int fit_size = fit_cube_size[cube_type];
-        block_type array[cube_size][cube_size][cube_size];
-        memcpy(array, cube_data[cube_type], cube_size * cube_size * cube_size * sizeof(block_type));
-        
-        block_type temp[cube_size][cube_size][cube_size];
-        for (int x_rotation = 0; x_rotation < 4; x_rotation++) {
-            for (int y_rotation = 0; y_rotation < 4; y_rotation++) {
-                for (int z_rotation = 0; z_rotation < 4; z_rotation++) {
-                    memcpy(rotated_cube_data[cube_type][z_rotation * 16 + y_rotation * 4 + x_rotation], array, cube_size * cube_size * cube_size * sizeof(block_type));
-                    
-                    memcpy(temp, array, cube_size * cube_size * cube_size * sizeof(block_type));
-                    for (int x = 0; x < fit_size; x++) {
-                        for (int y = 0; y < fit_size; y++) {
-                            for (int z = 0; z < fit_size; z++) {
-                                array[z][y][x] = temp[z][fit_size - 1 - x][y];
-                            }
-                        }
-                    }
-                }
-                memcpy(temp, array, cube_size * cube_size * cube_size * sizeof(block_type));
-                for (int x = 0; x < fit_size; x++) {
-                    for (int y = 0; y < fit_size; y++) {
-                        for (int z = 0; z < fit_size; z++) {
-                            array[z][y][x] = temp[fit_size - 1 - x][y][z];
-                        }
-                    }
-                }
-            }
-            memcpy(temp, array, cube_size * cube_size * cube_size * sizeof(block_type));
-            for (int x = 0; x < fit_size; x++) {
-                for (int y = 0; y < fit_size; y++) {
-                    for (int z = 0; z < fit_size; z++) {
-                        array[z][y][x] = temp[fit_size - 1 - y][z][x];
-                    }
-                }
-            }
-        }
-    }
+    // 큐브 데이터 초기화
+    initCubeData();
     
     // 윈도우 생성과 초기화
     glutInit(&argc, argv);
@@ -492,132 +141,4 @@ int main(int argc, char * argv[]) {
     glutMainLoop();
     
     return 0;
-}
-
-void* cube_getArray(cube a) {
-    a.x_rotation %= 4;
-    if (a.x_rotation < 0) a.x_rotation += 4;
-    a.y_rotation %= 4;
-    if (a.y_rotation < 0) a.y_rotation += 4;
-    a.z_rotation %= 4;
-    if (a.z_rotation < 0) a.z_rotation += 4;
-    
-    static block_type array[cube_size][cube_size][cube_size];
-    for (int z = 0; z < cube_size; z++) {
-        for (int y = 0; y < cube_size; y++) {
-            for (int x = 0; x < cube_size; x++) {
-                block_type data = rotated_cube_data[a.cube_type][a.z_rotation * 16 + a.y_rotation * 4 + a.x_rotation][z][y][x];
-                if (a.color_inversion == false) {
-                    array[z][y][x] = data;
-                } else {
-                    if (data == WHITE) {
-                        array[z][y][x] = BLACK;
-                    } else if (data == BLACK) {
-                        array[z][y][x] = WHITE;
-                    } else {
-                        array[z][y][x] = EMPTY;
-                    }
-                }
-            }
-        }
-    }
-    
-    return (void*)array;
-}
-
-bool cube_canPut(cube a, int z0, int y0, int x0) {
-    block_type (*array)[cube_size][cube_size] = cube_getArray(a);
-    int fit_size = fit_cube_size[a.cube_type];
-
-    // 있는 블록과 곂치는지, 경계를 넘어가는지 확인
-    for (int dz = 0; dz < fit_size; dz++) {
-        for (int dy = 0; dy < fit_size; dy++) {
-            for (int dx = 0; dx < fit_size; dx++) {
-                if (array[dz][dy][dx] == EMPTY) continue;
-                int z = z0 + dz, y = y0 + dy, x = x0 + dx;
-                
-                // 경계를 넘어가는지
-                if (z < 0 || z >= board_width) return false;
-                if (y < 0 || y >= board_height) return false;
-                if (x < 0 || x >= max_height) return false;
-                
-                // 있는 블록과 곂치는지
-                if (board[z][y][x] != EMPTY) return false;
-            }
-        }
-    }
-    
-    // 공중에 떠있는지 확인
-    bool flag = false;
-    for (int dy = 0; dy < fit_size; dy++) {
-        for (int dx = 0; dx < fit_size; dx++) {
-            for (int dz = 0; dz < fit_size; dz++) {
-                if (array[dz][dy][dx] == EMPTY) continue;
-                int z = z0 + dz, y = y0 + dy, x = x0 + dx;
-                
-                flag = flag || (board[z - 1][y][x] != EMPTY);
-                break; // 가장 낮은 곳만 확인하고 나감
-            }
-            if (flag == true) break;
-        }
-        if (flag == true) break;
-    }
-    if (flag == false) return false;
-    
-    // 색이 곂치는지 확인
-    for (int dz = 0; dz < fit_size; dz++) {
-        for (int dy = 0; dy < fit_size; dy++) {
-            for (int dx = 0; dx < fit_size; dx++) {
-                if (array[dz][dy][dx] == EMPTY) continue;
-                int z = z0 + dz, y = y0 + dy, x = x0 + dx;
-                block_type color = array[dz][dy][dx];
-                
-                for (int i = 0; i < 6; i++) {
-                    int next_z = z + delta_z[i], next_y = y + delta_y[i], next_x = x + delta_x[i];
-                    
-                    // 경계를 넘어가는지
-                    if (next_z < 0 || next_z >= board_width) continue;
-                    if (next_y < 0 || next_y >= board_height) continue;
-                    if (next_x < 0 || next_x >= max_height) continue;
-                    
-                    if (board[next_z][next_y][next_x] == color) return false;
-                }
-            }
-        }
-    }
-    
-    return true;
-}
-
-void cube_draw(cube a, double z0, double y0, double x0) {
-    block_type (*array)[cube_size][cube_size] = cube_getArray(a);
-    
-    bool abled = cube_canPut(a, z0, y0, x0);
-    
-    for (int z = 0; z < cube_size; z++) {
-        for (int y = 0; y < cube_size; y++) {
-            for (int x = 0; x < cube_size; x++) {
-                drawBlock(z0 + z, y0 + y, x0 + x, array[z][y][x], (abled ? 0.1 : 0.3));
-            }
-        }
-    }
-}
-
-void drawBlock(double z, double y, double x, block_type type, double delta) {
-    glPushMatrix();
-    glTranslated(-x, z, y);
-    
-    if (type == EMPTY) {
-        glPopMatrix();
-        return;
-    }
-    
-    if (type == WHITE) {
-        glColor3d(1.0 - delta, 1.0 - delta, 1.0 - delta);
-    } else if (type == BLACK) {
-        glColor3d(0.0 + delta, 0.0 + delta, 0.0 + delta);
-    }
-    
-    glutSolidCube(1.0);
-    glPopMatrix();
 }
