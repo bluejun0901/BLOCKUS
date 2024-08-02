@@ -11,6 +11,12 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
+#include <math.h>
+
+// 주변 탐색을 위한 배열
+const int delta_x[] = { 1, -1, 0, 0, 0, 0 };
+const int delta_y[] = { 0, 0, 1, -1, 0, 0 };
+const int delta_z[] = { 0, 0, 0, 0, 1, -1 };
 
 // 화면 설정
 // x축: 왼쪽 방향
@@ -336,17 +342,83 @@ void* cube_getArray(cube a) {
     return (void*)array;
 }
 
-void drawCube(double z, double y, double x, block_type type) {
+bool cube_canPut(cube a, int z0, int y0, int x0) {
+    block_type (*array)[cube_size][cube_size] = cube_getArray(a);
+    int fit_size = fit_cube_size[a.cube_type];
+
+    // 있는 블록과 곂치는지, 경계를 넘어가는지 확인
+    for (int dz = 0; dz < fit_size; dz++) {
+        for (int dy = 0; dy < fit_size; dy++) {
+            for (int dx = 0; dx < fit_size; dx++) {
+                if (array[dz][dy][dx] == EMPTY) continue;
+                int z = z0 + dz, y = y0 + dy, x = x0 + dx;
+                
+                // 경계를 넘어가는지
+                if (z < 0 || z >= board_width) return false;
+                if (y < 0 || y >= board_height) return false;
+                if (x < 0 || x >= max_height) return false;
+                
+                // 있는 블록과 곂치는지
+                if (board[z][y][x] != EMPTY) return false;
+            }
+        }
+    }
+    
+    // 공중에 떠있는지 확인
+    bool flag = false;
+    for (int dy = 0; dy < fit_size; dy++) {
+        for (int dx = 0; dx < fit_size; dx++) {
+            for (int dz = 0; dz < fit_size; dz++) {
+                if (array[dz][dy][dx] == EMPTY) continue;
+                int z = z0 + dz, y = y0 + dy, x = x0 + dx;
+                
+                flag = flag || (board[z - 1][y][x] != EMPTY);
+                break; // 가장 낮은 곳만 확인하고 나감
+            }
+            if (flag == true) break;
+        }
+        if (flag == true) break;
+    }
+    if (flag == false) return false;
+    
+    // 색이 곂치는지 확인
+    for (int dz = 0; dz < fit_size; dz++) {
+        for (int dy = 0; dy < fit_size; dy++) {
+            for (int dx = 0; dx < fit_size; dx++) {
+                if (array[dz][dy][dx] == EMPTY) continue;
+                int z = z0 + dz, y = y0 + dy, x = x0 + dx;
+                block_type color = array[dz][dy][dx];
+                
+                for (int i = 0; i < 6; i++) {
+                    int next_z = z + delta_z[i], next_y = y + delta_y[i], next_x = x + delta_x[i];
+                    
+                    // 경계를 넘어가는지
+                    if (next_z < 0 || next_z >= board_width) continue;
+                    if (next_y < 0 || next_y >= board_height) continue;
+                    if (next_x < 0 || next_x >= max_height) continue;
+                    
+                    if (board[next_z][next_y][next_x] == color) return false;
+                }
+            }
+        }
+    }
+    
+    return true;
+}
+
+void drawCube(double z, double y, double x, block_type type, double delta) {
     glPushMatrix();
     glTranslated(-x, z, y);
     
-    if (type == WHITE) {
-        glColor3d(1.0, 1.0, 1.0);
-    } else if (type == BLACK) {
-        glColor3d(0.0, 0.0, 0.0);
-    } else if (type == EMPTY) {
+    if (type == EMPTY) {
         glPopMatrix();
         return;
+    }
+    
+    if (type == WHITE) {
+        glColor3d(1.0 - delta, 1.0 - delta, 1.0 - delta);
+    } else if (type == BLACK) {
+        glColor3d(0.0 + delta, 0.0 + delta, 0.0 + delta);
     }
     
     glutSolidCube(1.0);
@@ -356,10 +428,12 @@ void drawCube(double z, double y, double x, block_type type) {
 void cube_draw(cube a, double z0, double y0, double x0) {
     block_type (*array)[cube_size][cube_size] = cube_getArray(a);
     
+    bool abled = cube_canPut(a, z0, y0, x0);
+    
     for (int z = 0; z < cube_size; z++) {
         for (int y = 0; y < cube_size; y++) {
             for (int x = 0; x < cube_size; x++) {
-                drawCube(z0 + z, y0 + y, x0 + x, array[z][y][x]);
+                drawCube(z0 + z, y0 + y, x0 + x, array[z][y][x], (abled ? 0.1 : 0.3));
             }
         }
     }
@@ -379,6 +453,8 @@ void myReshape(int width, int height) {
 }
 
 int test_variable = 0; // test code
+int tv2 = 0;
+int tv3 = 0;
 
 void myDisplay(void) {
     glClearColor(0.5, 0.5, 0.5, 1.0); // 배경색 지정
@@ -395,14 +471,14 @@ void myDisplay(void) {
     for (int z = 0; z < max_height; z++) {
         for (int y = 0; y < board_height; y++) {
             for (int x = 0; x < board_width; x++) {
-                drawCube(z, y, x, board[z][y][x]);
+                drawCube(z, y, x, board[z][y][x], 0.0);
             }
         }
     }
     
     // test code
-    cube t = { 8, 0, test_variable, 0, false };
-    cube_draw(t, 3, 3, 3);
+    cube t = { 8, 0, 0, 0, false };
+    cube_draw(t, test_variable, tv2, tv3);
     // test code
     
     glutSwapBuffers();
@@ -423,8 +499,12 @@ void myKeyboard(unsigned char key, int x, int y) {
         camera_x += 1.0;
     }
     // test code
-    else if (key == 'q' || key == 'Q') {
+    else if (key == 'r' || key == 'R') {
         test_variable++;
+    } else if (key == 't' || key == 'T') {
+        tv2++;
+    } else if (key == 'y' || key == 'Y') {
+        tv3++;
     }
     
     glutPostRedisplay();
