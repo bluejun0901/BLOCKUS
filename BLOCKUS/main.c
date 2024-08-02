@@ -10,6 +10,7 @@
 
 #include <stdbool.h>
 #include <stdio.h>
+#include <string.h>
 
 // 화면 설정
 // x축: 왼쪽 방향
@@ -43,9 +44,12 @@ double camera_y = 0.0;
 double camera_z = 5.0;
 
 // 큐브 모양 정의
-// cube[_][z좌표][y좌표][x좌표]로 접근
-#define cube_size 4
-const block_type cube_data[11][cube_size][cube_size][cube_size] = {
+// cube_data[_][z좌표][y좌표][x좌표]로 접근
+// rotated_cube_data[_][z축 회전 * 16 + y축 회전 * 4 + x축 회전][z좌표][y좌표][x좌표]로 접근
+#define cube_size 4 // 하나의 큐브를 저장하는 데 사용되는 공간
+#define cube_num 11 // 큐브 종류의 수
+const int fit_cube_size[cube_num] = { 2, 3, 2, 4, 2, 3, 3, 3, 2, 2, 2 }; // 큐브가 차지하는 실제 공간
+const block_type cube_data[cube_num][cube_size][cube_size][cube_size] = {
     { // cube2-0
         {
             { 1, 2, 0, 0 },
@@ -290,6 +294,7 @@ const block_type cube_data[11][cube_size][cube_size][cube_size] = {
         }
     }
 };
+block_type rotated_cube_data[cube_num][4 * 4 * 4][cube_size][cube_size][cube_size]; // main함수에서 전처리
 
 // 큐브 정의
 typedef struct _cube {
@@ -301,16 +306,24 @@ typedef struct _cube {
 } cube;
 
 void* cube_getArray(cube a) {
+    a.x_rotation %= 4;
+    if (a.x_rotation < 0) a.x_rotation += 4;
+    a.y_rotation %= 4;
+    if (a.y_rotation < 0) a.y_rotation += 4;
+    a.z_rotation %= 4;
+    if (a.z_rotation < 0) a.z_rotation += 4;
+    
     static block_type array[cube_size][cube_size][cube_size];
     for (int z = 0; z < cube_size; z++) {
         for (int y = 0; y < cube_size; y++) {
             for (int x = 0; x < cube_size; x++) {
+                block_type data = rotated_cube_data[a.cube_type][a.z_rotation * 16 + a.y_rotation * 4 + a.x_rotation][z][y][x];
                 if (a.color_inversion == false) {
-                    array[z][y][x] = cube_data[a.cube_type][z][y][x];
+                    array[z][y][x] = data;
                 } else {
-                    if (cube_data[a.cube_type][z][y][x] == WHITE) {
+                    if (data == WHITE) {
                         array[z][y][x] = BLACK;
-                    } else if (cube_data[a.cube_type][z][y][x] == BLACK) {
+                    } else if (data == BLACK) {
                         array[z][y][x] = WHITE;
                     } else {
                         array[z][y][x] = EMPTY;
@@ -319,7 +332,6 @@ void* cube_getArray(cube a) {
             }
         }
     }
-    // TODO: 회전 변환 코드 추가
     
     return (void*)array;
 }
@@ -389,7 +401,7 @@ void myDisplay(void) {
     }
     
     // test code
-    cube t = { 8, 0, 0, 0, false };
+    cube t = { 8, 0, test_variable, 0, false };
     cube_draw(t, 3, 3, 3);
     // test code
     
@@ -442,6 +454,47 @@ int main(int argc, char * argv[]) {
                     board[z][y][x] = ((x + y) % 2 == 0 ? WHITE : BLACK);
                 } else {
                     board[z][y][x] = EMPTY;
+                }
+            }
+        }
+    }
+    
+    // 회전된 큐브 데이터 초기화
+    for (int cube_type = 0; cube_type < cube_num; cube_type++) {
+        int fit_size = fit_cube_size[cube_type];
+        block_type array[cube_size][cube_size][cube_size];
+        memcpy(array, cube_data[cube_type], cube_size * cube_size * cube_size * sizeof(block_type));
+        
+        block_type temp[cube_size][cube_size][cube_size];
+        for (int x_rotation = 0; x_rotation < 4; x_rotation++) {
+            for (int y_rotation = 0; y_rotation < 4; y_rotation++) {
+                for (int z_rotation = 0; z_rotation < 4; z_rotation++) {
+                    memcpy(rotated_cube_data[cube_type][z_rotation * 16 + y_rotation * 4 + x_rotation], array, cube_size * cube_size * cube_size * sizeof(block_type));
+                    
+                    memcpy(temp, array, cube_size * cube_size * cube_size * sizeof(block_type));
+                    for (int x = 0; x < fit_size; x++) {
+                        for (int y = 0; y < fit_size; y++) {
+                            for (int z = 0; z < fit_size; z++) {
+                                array[z][y][x] = temp[z][fit_size - 1 - x][y];
+                            }
+                        }
+                    }
+                }
+                memcpy(temp, array, cube_size * cube_size * cube_size * sizeof(block_type));
+                for (int x = 0; x < fit_size; x++) {
+                    for (int y = 0; y < fit_size; y++) {
+                        for (int z = 0; z < fit_size; z++) {
+                            array[z][y][x] = temp[fit_size - 1 - x][y][z];
+                        }
+                    }
+                }
+            }
+            memcpy(temp, array, cube_size * cube_size * cube_size * sizeof(block_type));
+            for (int x = 0; x < fit_size; x++) {
+                for (int y = 0; y < fit_size; y++) {
+                    for (int z = 0; z < fit_size; z++) {
+                        array[z][y][x] = temp[fit_size - 1 - y][z][x];
+                    }
                 }
             }
         }
