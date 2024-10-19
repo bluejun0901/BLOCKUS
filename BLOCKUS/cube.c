@@ -164,9 +164,9 @@ bool cube_canPut(cube a, int z0, int y0, int x0) {
                 int z = z0 + dz, y = y0 + dy, x = x0 + dx;
                 
                 // 경계를 넘어가는지
-                if (z < 0 || z >= board_width) return false;
+                if (x < 0 || x >= board_width) return false;
                 if (y < 0 || y >= board_height) return false;
-                if (x < 0 || x >= max_height) return false;
+                if (z < 0 || z >= max_height) return false;
                 
                 // 있는 블록과 곂치는지
                 if (board[z][y][x] != EMPTY) return false;
@@ -203,9 +203,9 @@ bool cube_canPut(cube a, int z0, int y0, int x0) {
                     int next_z = z + delta_z[i], next_y = y + delta_y[i], next_x = x + delta_x[i];
                     
                     // 경계를 넘어가는지
-                    if (next_z < 0 || next_z >= board_width) continue;
+                    if (next_x < 0 || next_x >= board_width) continue;
                     if (next_y < 0 || next_y >= board_height) continue;
-                    if (next_x < 0 || next_x >= max_height) continue;
+                    if (next_z < 0 || next_z >= max_height) continue;
                     
                     if (board[next_z][next_y][next_x] == color) return false;
                 }
@@ -227,9 +227,9 @@ void cube_put(cube a, int z0, int y0, int x0) {
                 int z = z0 + dz, y = y0 + dy, x = x0 + dx;
                 block_type color = array[dz][dy][dx];
                 
-                if (z < 0 || z >= board_width) continue;
+                if (x < 0 || x >= board_width) continue;
                 if (y < 0 || y >= board_height) continue;
-                if (x < 0 || x >= max_height) continue;
+                if (z < 0 || z >= max_height) continue;
                 
                 board[z][y][x] = color;
             }
@@ -237,15 +237,13 @@ void cube_put(cube a, int z0, int y0, int x0) {
     }
 }
 
-void cube_draw(cube a, double z0, double y0, double x0) {
+void cube_draw(cube a, double z0, double y0, double x0, double size, bool abled) {
     block_type (*array)[cube_size][cube_size] = cube_getArray(a);
-    
-    bool abled = cube_canPut(a, z0, y0, x0);
     
     for (int z = 0; z < cube_size; z++) {
         for (int y = 0; y < cube_size; y++) {
             for (int x = 0; x < cube_size; x++) {
-                drawBlock(z0 + z, y0 + y, x0 + x, array[z][y][x], (abled ? 0.1 : 0.3));
+                drawBlock(z0 + z * size, y0 + y * size, x0 + x * size, array[z][y][x], size, (abled ? 0.1 : 0.3));
             }
         }
     }

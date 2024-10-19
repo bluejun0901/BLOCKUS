@@ -15,6 +15,8 @@
 		A259EE082C5D0D00005405FA /* graphics.c in Sources */ = {isa = PBXBuildFile; fileRef = A259EE072C5D0D00005405FA /* graphics.c */; };
 		A259EE0A2C5D0D18005405FA /* board.c in Sources */ = {isa = PBXBuildFile; fileRef = A259EE092C5D0D18005405FA /* board.c */; };
 		A259EE0C2C5D1155005405FA /* common.c in Sources */ = {isa = PBXBuildFile; fileRef = A259EE0B2C5D1155005405FA /* common.c */; };
+		A259EE0F2C5D13AE005405FA /* camera.c in Sources */ = {isa = PBXBuildFile; fileRef = A259EE0E2C5D13AE005405FA /* camera.c */; };
+		A259EE122C5DCDDD005405FA /* game_logic.c in Sources */ = {isa = PBXBuildFile; fileRef = A259EE112C5DCDDD005405FA /* game_logic.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -43,6 +45,10 @@
 		A259EE072C5D0D00005405FA /* graphics.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = graphics.c; sourceTree = "<group>"; };
 		A259EE092C5D0D18005405FA /* board.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = board.c; sourceTree = "<group>"; };
 		A259EE0B2C5D1155005405FA /* common.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = common.c; sourceTree = "<group>"; };
+		A259EE0D2C5D13AE005405FA /* camera.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = camera.h; sourceTree = "<group>"; };
+		A259EE0E2C5D13AE005405FA /* camera.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = camera.c; sourceTree = "<group>"; };
+		A259EE102C5DCDDD005405FA /* game_logic.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = game_logic.h; sourceTree = "<group>"; };
+		A259EE112C5DCDDD005405FA /* game_logic.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = game_logic.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -79,7 +85,6 @@
 			isa = PBXGroup;
 			children = (
 				A259EDEF2C5A6695005405FA /* main.c */,
-				A259EDFB2C5A8493005405FA /* print_empty_cube.py */,
 				A259EDFD2C5D08A5005405FA /* cube.h */,
 				A259EDFE2C5D08A5005405FA /* cube.c */,
 				A259EE002C5D0A6E005405FA /* common.h */,
@@ -88,6 +93,11 @@
 				A259EE092C5D0D18005405FA /* board.c */,
 				A259EE062C5D0D00005405FA /* graphics.h */,
 				A259EE072C5D0D00005405FA /* graphics.c */,
+				A259EE0D2C5D13AE005405FA /* camera.h */,
+				A259EE0E2C5D13AE005405FA /* camera.c */,
+				A259EE102C5DCDDD005405FA /* game_logic.h */,
+				A259EE112C5DCDDD005405FA /* game_logic.c */,
+				A259EDFB2C5A8493005405FA /* print_empty_cube.py */,
 			);
 			path = BLOCKUS;
 			sourceTree = "<group>";
@@ -160,7 +170,9 @@
 			files = (
 				A259EE0C2C5D1155005405FA /* common.c in Sources */,
 				A259EE082C5D0D00005405FA /* graphics.c in Sources */,
+				A259EE0F2C5D13AE005405FA /* camera.c in Sources */,
 				A259EE0A2C5D0D18005405FA /* board.c in Sources */,
+				A259EE122C5DCDDD005405FA /* game_logic.c in Sources */,
 				A259EDF02C5A6695005405FA /* main.c in Sources */,
 				A259EDFF2C5D08A5005405FA /* cube.c in Sources */,
 				A259EDFC2C5A8493005405FA /* print_empty_cube.py in Sources */,

@@ -13,11 +13,21 @@ extern const int delta_x[];
 extern const int delta_y[];
 extern const int delta_z[];
 
+// 방향 정의
+typedef enum _diraction {
+    RIGHT = 0,
+    LEFT,
+    INWARD,
+    OUTWARD,
+    UP,
+    DOWN
+} diraction;
+
 // 블록 종류 정의
 typedef enum _block_type {
     EMPTY = 0,
-    WHITE = 1,
-    BLACK = 2
+    WHITE,
+    BLACK
 } block_type;
 
 #endif /* common_h */

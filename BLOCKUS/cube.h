@@ -49,11 +49,7 @@ void cube_put(cube a, int z0, int y0, int x0);
 /* 큐브를 특정 위치에 그리는 함수 */
 /* a: 큐브 구조체 */
 /* z0, y0, x0: 보드 좌표계에서 큐브의 왼쪽 아래 앞 꼭짓점의 위치 */
-void cube_draw(cube a, double z0, double y0, double x0);
-
-/* 큐브를 특정 위치에 그리는 함수 */
-/* a: 큐브 구조체 */
-/* z0, y0, x0: 보드 좌표계에서 큐브의 왼쪽 아래 앞 꼭짓점의 위치 */
-void cube_draw(cube a, double z0, double y0, double x0);
+/* size: 큐브의 크기 */
+void cube_draw(cube a, double z0, double y0, double x0, double size, bool abled);
 
 #endif /* cube_h */

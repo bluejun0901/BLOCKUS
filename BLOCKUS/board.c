@@ -30,7 +30,7 @@ void drawBoard(void) {
     for (int z = 0; z < max_height; z++) {
         for (int y = 0; y < board_height; y++) {
             for (int x = 0; x < board_width; x++) {
-                drawBlock(z, y, x, board[z][y][x], 0.0);
+                drawBlock(z, y, x, board[z][y][x], 1.0, 0.0);
             }
         }
     }
