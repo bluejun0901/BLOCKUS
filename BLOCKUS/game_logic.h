@@ -19,7 +19,7 @@ extern int cube_z; // 플레이어가 선택하고 있는 큐브의 위치
 extern int cube_y; // 플레이어가 선택하고 있는 큐브의 위치
 extern int cube_x; // 플레이어가 선택하고 있는 큐브의 위치
 
-extern int trun_count; // 턴 횟수
+extern int turn_count; // 턴 횟수
 
 /* 플레이어에게 큐브를 무작위로 분배 */
 void initPlayers(void);
@@ -29,5 +29,6 @@ void game_logic_step(unsigned char key);
 
 /* 그리기 */
 void game_logic_draw(void);
+void selected_cube_draw(void);
 
 #endif /* game_logic_h */

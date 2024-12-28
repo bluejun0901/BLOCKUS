@@ -16,11 +16,14 @@
 
 cube player_cubes[player_num][player_cube_num];
 
-int cube_z;
-int cube_y;
-int cube_x;
+int cube_z = 1.0;
+int cube_y = 1.0;
+int cube_x = 1.0;
 
-int trun_count;
+int turn_count;
+
+bool selected = false;
+cube selected_cube;
 
 void initPlayers(void) {
     srandom((unsigned int)time(NULL));
@@ -34,7 +37,61 @@ void initPlayers(void) {
 }
 
 void game_logic_step(unsigned char key) {
-    
+    if (turn_count == 0) {
+        if (key - '0' >= 1 && key - '0' <= player_cube_num) {
+            selected = true;
+            selected_cube = player_cubes[0][key - '0'];
+        }
+        
+        if (key == 'a' || key == 'A') {
+            cube_x++;
+        } else if (key == 's' || key == 'S') {
+            cube_y++;
+        } else if (key == 'd' || key == 'D') {
+            cube_z++;
+        } else if (key == 'q' || key == 'Q') {
+            cube_x--;
+        } else if (key == 'w' || key == 'W') {
+            cube_y--;
+        } else if (key == 'e' || key == 'e') {
+            cube_z--;
+        }
+        
+        if (key == ' ') {
+            if (cube_canPut(selected_cube, cube_z, cube_y, cube_x) == true) {
+                cube_put(selected_cube, cube_z, cube_y, cube_x);
+                selected = false;
+                turn_count++;
+            }
+        }
+    } else if (turn_count == 1) {
+        if (key - '0' >= 1 && key - '0' <= player_cube_num) {
+            selected = true;
+            selected_cube = player_cubes[1][key - '0'];
+        }
+        
+        if (key == 'a' || key == 'A') {
+            cube_x++;
+        } else if (key == 's' || key == 'S') {
+            cube_y++;
+        } else if (key == 'd' || key == 'D') {
+            cube_z++;
+        } else if (key == 'q' || key == 'Q') {
+            cube_x--;
+        } else if (key == 'w' || key == 'W') {
+            cube_y--;
+        } else if (key == 'e' || key == 'e') {
+            cube_z--;
+        }
+        
+        if (key == ' ') {
+            if (cube_canPut(selected_cube, cube_z, cube_y, cube_x) == true) {
+                cube_put(selected_cube, cube_z, cube_y, cube_x);
+                selected = false;
+                turn_count++;
+            }
+        }
+    }
 }
 
 void game_logic_draw(void) {
@@ -55,4 +112,10 @@ void game_logic_draw(void) {
     }
     
     glPopMatrix();
+}
+
+void selected_cube_draw(void) {
+    if (selected == true) {
+        cube_draw(selected_cube, cube_z, cube_y, cube_x, 1.0, cube_canPut(selected_cube, cube_z, cube_y, cube_x));
+    }
 }

@@ -62,6 +62,8 @@ void myDisplay(void) {
     // 게임판 그리기
     drawBoard();
     
+    selected_cube_draw();
+    
     glutSwapBuffers();
 }
 

@@ -243,7 +243,7 @@ void cube_draw(cube a, double z0, double y0, double x0, double size, bool abled)
     for (int z = 0; z < cube_size; z++) {
         for (int y = 0; y < cube_size; y++) {
             for (int x = 0; x < cube_size; x++) {
-                drawBlock(z0 + z * size, y0 + y * size, x0 + x * size, array[z][y][x], size, (abled ? 0.1 : 0.3));
+                drawBlock(z0 + z * size, y0 + y * size, x0 + x * size, array[z][y][x], size, (abled ? 0.05 : 0.3));
             }
         }
     }
